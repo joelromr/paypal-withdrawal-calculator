@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayPal Withdrawal Calculator</title>
+    <style>
+        :root {
+            --paypal-blue: #3bb2ed;
+            --paypal-light-blue: #0079C1;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-top: 2.5rem;
+        }
+
+        h1 {
+            color: var(--paypal-blue);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--paypal-blue);
+        }
+
+        .link-button {
+            display: inline-block;
+            background-color: var(--paypal-light-blue);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 24px;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .link-button:hover {
+            background-color: var(--paypal-blue);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #2a2a2a;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--paypal-light-blue);
+            box-shadow: 0 0 0 3px rgba(0, 121, 193, 0.1);
+        }
+
+        .calculators-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .calculator-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--paypal-light-blue);
+        }
+
+        .calculator-card h3 {
+            margin-top: 0;
+            color: var(--paypal-blue);
+        }
+
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-box p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .result-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--paypal-blue);
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 600px) {
+            .calculators-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="step-section text-center">
+            <h2 class="step-title">Step 1: Get the Rate</h2>
+            <a href="https://www.paypal.com/businesswallet/currencyConverter/USD" target="_blank" rel="noopener noreferrer" class="link-button">
+                1. Check current PayPal exchange rate
+            </a>
+        </section>
+
+        <section class="step-section">
+            <h2 class="step-title">Step 2: Enter the Rate</h2>
+            <div class="input-group">
+                <label for="exchange-rate">Current PayPal Exchange Rate (MXN per 1 USD)</label>
+                <input type="number" id="exchange-rate" value="16.48" step="0.01" min="0">
+            </div>
+        </section>
+
+        <div class="calculators-grid">
+            <div class="calculator-card">
+                <h3>USD &rarr; MXN</h3>
+                <div class="input-group">
+                    <label for="usd-input">Amount to withdraw (USD)</label>
+                    <input type="number" id="usd-input" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="result-box">
+                    <p>You will receive:</p>
+                    <span class="result-value" id="mxn-output">$0.00 MXN</span>
+                </div>
+            </div>
+
+            <div class="calculator-card">
+                <h3>MXN &rarr; USD</h3>
+                <div class="input-group">
+                    <label for="mxn-input">Desired amount to receive (MXN)</label>
+                    <input type="number" id="mxn-input" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="result-box">
+                    <p>You need to withdraw:</p>
+                    <span class="result-value" id="usd-output">$0.00 USD</span>
+                </div>
+            </div>
+        </div>
+
+        <header>
+            <h1>Withdrawal Calculator</h1>
+        </header>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const exchangeRateInput = document.getElementById('exchange-rate');
+            const usdInput = document.getElementById('usd-input');
+            const mxnInput = document.getElementById('mxn-input');
+            const mxnOutput = document.getElementById('mxn-output');
+            const usdOutput = document.getElementById('usd-output');
+
+            if (localStorage.getItem('savedExchangeRate')) {
+                exchangeRateInput.value = localStorage.getItem('savedExchangeRate');
+            }
+            if (localStorage.getItem('savedUsdAmount')) {
+                usdInput.value = localStorage.getItem('savedUsdAmount');
+            }
+            if (localStorage.getItem('savedMxnAmount')) {
+                mxnInput.value = localStorage.getItem('savedMxnAmount');
+            }
+
+            const formatCurrency = (amount, currencyCode) => {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD', 
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(amount).replace('$', '') + ' ' + currencyCode;
+            };
+
+            const calculateAll = () => {
+                const rate = parseFloat(exchangeRateInput.value) || 0;
+                const usdVal = parseFloat(usdInput.value) || 0;
+                const mxnVal = parseFloat(mxnInput.value) || 0;
+
+                localStorage.setItem('savedExchangeRate', exchangeRateInput.value);
+                localStorage.setItem('savedUsdAmount', usdInput.value);
+                localStorage.setItem('savedMxnAmount', mxnInput.value);
+
+                const calculatedMxn = usdVal * rate;
+                const calculatedUsd = rate > 0 ? (mxnVal / rate) : 0;
+
+                mxnOutput.textContent = '$' + formatCurrency(calculatedMxn, 'MXN');
+                usdOutput.textContent = '$' + formatCurrency(calculatedUsd, 'USD');
+            };
+
+            exchangeRateInput.addEventListener('input', calculateAll);
+            usdInput.addEventListener('input', calculateAll);
+            mxnInput.addEventListener('input', calculateAll);
+
+            calculateAll();
+        });
+    </script>
+</body>
+</html>
