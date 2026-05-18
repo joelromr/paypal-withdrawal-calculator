@@ -100,6 +100,23 @@
             box-shadow: 0 0 0 3px rgba(0, 121, 193, 0.1);
         }
 
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            transform: scale(1.2);
+            margin-right: 0.5rem;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+        }
+
         .calculators-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -163,6 +180,14 @@
                 <label for="exchange-rate">Current PayPal Exchange Rate (MXN per 1 USD)</label>
                 <input type="number" id="exchange-rate" value="16.48" step="0.01" min="0">
             </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="apply-fee">
+                <label for="apply-fee">Apply flat fee (MXN)</label>
+            </div>
+            <div class="input-group">
+                <input type="number" id="fee-input" placeholder="e.g. 35.00" step="0.01" min="0">
+            </div>
         </section>
 
         <div class="calculators-grid">
@@ -199,6 +224,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const exchangeRateInput = document.getElementById('exchange-rate');
+            const applyFeeCheckbox = document.getElementById('apply-fee');
+            const feeInput = document.getElementById('fee-input');
             const usdInput = document.getElementById('usd-input');
             const mxnInput = document.getElementById('mxn-input');
             const mxnOutput = document.getElementById('mxn-output');
@@ -206,6 +233,12 @@
 
             if (localStorage.getItem('savedExchangeRate')) {
                 exchangeRateInput.value = localStorage.getItem('savedExchangeRate');
+            }
+            if (localStorage.getItem('savedApplyFee') !== null) {
+                applyFeeCheckbox.checked = localStorage.getItem('savedApplyFee') === 'true';
+            }
+            if (localStorage.getItem('savedFeeInput')) {
+                feeInput.value = localStorage.getItem('savedFeeInput');
             }
             if (localStorage.getItem('savedUsdAmount')) {
                 usdInput.value = localStorage.getItem('savedUsdAmount');
@@ -227,19 +260,27 @@
                 const rate = parseFloat(exchangeRateInput.value) || 0;
                 const usdVal = parseFloat(usdInput.value) || 0;
                 const mxnVal = parseFloat(mxnInput.value) || 0;
+                
+                const applyFee = applyFeeCheckbox.checked;
+                const feeVal = parseFloat(feeInput.value) || 0;
+                const activeFee = applyFee ? feeVal : 0;
 
                 localStorage.setItem('savedExchangeRate', exchangeRateInput.value);
+                localStorage.setItem('savedApplyFee', applyFeeCheckbox.checked);
+                localStorage.setItem('savedFeeInput', feeInput.value);
                 localStorage.setItem('savedUsdAmount', usdInput.value);
                 localStorage.setItem('savedMxnAmount', mxnInput.value);
 
-                const calculatedMxn = usdVal * rate;
-                const calculatedUsd = rate > 0 ? (mxnVal / rate) : 0;
+                const calculatedMxn = Math.max(0, (usdVal * rate) - activeFee);
+                const calculatedUsd = rate > 0 ? ((mxnVal + activeFee) / rate) : 0;
 
                 mxnOutput.textContent = '$' + formatCurrency(calculatedMxn, 'MXN');
                 usdOutput.textContent = '$' + formatCurrency(calculatedUsd, 'USD');
             };
 
             exchangeRateInput.addEventListener('input', calculateAll);
+            applyFeeCheckbox.addEventListener('change', calculateAll);
+            feeInput.addEventListener('input', calculateAll);
             usdInput.addEventListener('input', calculateAll);
             mxnInput.addEventListener('input', calculateAll);
 
