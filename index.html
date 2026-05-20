@@ -13,6 +13,7 @@
             --text-main: #e0e0e0;
             --text-muted: #a0a0a0;
             --border-color: #333333;
+            --input-bg: #2a2a2a;
         }
 
         body {
@@ -46,6 +47,8 @@
             padding: 2rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 5;
         }
 
         .step-title {
@@ -85,7 +88,7 @@
         .input-group input {
             width: 100%;
             padding: 0.75rem;
-            background-color: #2a2a2a;
+            background-color: var(--input-bg);
             color: var(--text-main);
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -100,21 +103,80 @@
             box-shadow: 0 0 0 3px rgba(0, 121, 193, 0.1);
         }
 
+        /* Custom Checkbox Styling */
         .checkbox-group {
             display: flex;
             align-items: center;
             margin-top: 1rem;
             margin-bottom: 0.5rem;
+            position: relative;
         }
 
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            transform: scale(1.2);
-            margin-right: 0.5rem;
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-left: 35px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 500;
+            color: var(--text-main);
         }
 
-        .checkbox-group label {
-            margin-bottom: 0;
+        /* Hide the browser's default checkbox */
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 22px;
+            width: 22px;
+            background-color: #000000; /* Dark background */
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            border-color: #555;
+        }
+
+        /* When the checkbox is checked, add PayPal blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--paypal-light-blue);
+            border-color: var(--paypal-light-blue);
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 7px;
+            top: 2px;
+            width: 5px;
+            height: 11px;
+            border: solid #000000; /* Black checkmark against blue bg */
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
         }
 
         .calculators-grid {
@@ -124,11 +186,32 @@
         }
 
         .calculator-card {
-            background: var(--card-bg);
             border-radius: 12px;
             padding: 2rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-top: 4px solid var(--paypal-light-blue);
+            /* Removed old border-top accent and solid background */
+            position: relative; /* Context for layered children */
+            overflow: hidden; /* Contain blurred background */
+            z-index: 1;
+        }
+
+        /* SVG Background Layer */
+        .card-flag-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Place behind content */
+            filter: blur(12px) opacity(0.15); /* Blur and low visibility */
+            object-fit: cover; /* Cover entire card */
+            pointer-events: none; /* Ignore mouse events */
+        }
+
+        /* Foreground Content Layer */
+        .card-content {
+            position: relative;
+            z-index: 10;
         }
 
         .calculator-card h3 {
@@ -178,12 +261,14 @@
             <h2 class="step-title">Step 2: Enter the Rate</h2>
             <div class="input-group">
                 <label for="exchange-rate">Current PayPal Exchange Rate (MXN per 1 USD)</label>
-                <input type="number" id="exchange-rate" value="16.48" step="0.01" min="0">
+                <input type="number" id="exchange-rate" value="16.48" step="0.0001" min="0">
             </div>
             
             <div class="checkbox-group">
-                <input type="checkbox" id="apply-fee">
-                <label for="apply-fee">Apply flat fee (MXN)</label>
+                <label class="checkbox-container" for="apply-fee">Apply flat fee (MXN)
+                    <input type="checkbox" id="apply-fee">
+                    <span class="checkmark"></span>
+                </label>
             </div>
             <div class="input-group" id="fee-input-container">
                 <input type="number" id="fee-input" placeholder="e.g. 35.00" step="0.01" min="0">
@@ -192,26 +277,58 @@
 
         <div class="calculators-grid">
             <div class="calculator-card">
-                <h3>USD &rarr; MXN</h3>
-                <div class="input-group">
-                    <label for="usd-input">Amount to withdraw (USD)</label>
-                    <input type="number" id="usd-input" placeholder="0.00" step="0.01" min="0">
-                </div>
-                <div class="result-box">
-                    <p>You will receive:</p>
-                    <span class="result-value" id="mxn-output">$0.00 MXN</span>
+                <svg class="card-flag-bg" viewBox="0 0 760 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="760" height="400" fill="#fff"/>
+                    <path d="M0 30.7h760v30.8H0z" fill="#b22234"/>
+                    <path d="M0 92.3h760v30.8H0z" fill="#b22234"/>
+                    <path d="M0 153.8h760v30.8H0z" fill="#b22234"/>
+                    <path d="M0 215.4h760v30.8H0z" fill="#b22234"/>
+                    <path d="M0 277h760v30.7H0z" fill="#b22234"/>
+                    <path d="M0 338.5h760v30.7H0z" fill="#b22234"/>
+                    <rect width="304" height="215.4" fill="#3c3b6e"/>
+                    <g fill="#fff">
+                        <circle cx="30" cy="25" r="5"/><circle cx="80" cy="25" r="5"/><circle cx="130" cy="25" r="5"/><circle cx="180" cy="25" r="5"/><circle cx="230" cy="25" r="5"/><circle cx="280" cy="25" r="5"/>
+                        <circle cx="30" cy="70" r="5"/><circle cx="80" cy="70" r="5"/><circle cx="130" cy="70" r="5"/><circle cx="180" cy="70" r="5"/><circle cx="230" cy="70" r="5"/><circle cx="280" cy="70" r="5"/>
+                        <circle cx="30" cy="115" r="5"/><circle cx="80" cy="115" r="5"/><circle cx="130" cy="115" r="5"/><circle cx="180" cy="115" r="5"/><circle cx="230" cy="115" r="5"/><circle cx="280" cy="115" r="5"/>
+                        <circle cx="30" cy="160" r="5"/><circle cx="80" cy="160" r="5"/><circle cx="130" cy="160" r="5"/><circle cx="180" cy="160" r="5"/><circle cx="230" cy="160" r="5"/><circle cx="280" cy="160" r="5"/>
+                        <circle cx="30" cy="195" r="5"/><circle cx="80" cy="195" r="5"/><circle cx="130" cy="195" r="5"/><circle cx="180" cy="195" r="5"/><circle cx="230" cy="195" r="5"/><circle cx="280" cy="195" r="5"/>
+                    </g>
+                </svg>
+                
+                <div class="card-content">
+                    <h3>USD &rarr; MXN</h3>
+                    <div class="input-group">
+                        <label for="usd-input">Amount to withdraw (USD)</label>
+                        <input type="number" id="usd-input" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="result-box">
+                        <p>You will receive:</p>
+                        <span class="result-value" id="mxn-output">$0.00 MXN</span>
+                    </div>
                 </div>
             </div>
 
             <div class="calculator-card">
-                <h3>MXN &rarr; USD</h3>
-                <div class="input-group">
-                    <label for="mxn-input">Desired amount to receive (MXN)</label>
-                    <input type="number" id="mxn-input" placeholder="0.00" step="0.01" min="0">
-                </div>
-                <div class="result-box">
-                    <p>You need to withdraw:</p>
-                    <span class="result-value" id="usd-output">$0.00 USD</span>
+                <svg class="card-flag-bg" viewBox="0 0 980 560" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="980" height="560" fill="#ce1126"/>
+                    <rect width="653.3" height="560" fill="#fff"/>
+                    <rect width="326.7" height="560" fill="#006847"/>
+                    <g transform="translate(490, 280)">
+                        <circle r="60" fill="#8b4513" opacity="0.5"/>
+                        <path d="M-30,-20 L30,-20 L0,40 Z" fill="#006847"/>
+                    </g>
+                </svg>
+
+                <div class="card-content">
+                    <h3>MXN &rarr; USD</h3>
+                    <div class="input-group">
+                        <label for="mxn-input">Desired amount to receive (MXN)</label>
+                        <input type="number" id="mxn-input" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="result-box">
+                        <p>You need to withdraw:</p>
+                        <span class="result-value" id="usd-output">$0.00 USD</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -232,6 +349,7 @@
             const mxnOutput = document.getElementById('mxn-output');
             const usdOutput = document.getElementById('usd-output');
 
+            // Load saved state
             if (localStorage.getItem('savedExchangeRate')) {
                 exchangeRateInput.value = localStorage.getItem('savedExchangeRate');
             }
@@ -266,27 +384,33 @@
                 const feeVal = parseFloat(feeInput.value) || 0;
                 const activeFee = applyFee ? feeVal : 0;
 
+                // Handle conditional input visibility
                 feeInputContainer.style.display = applyFee ? 'block' : 'none';
 
+                // Save current state
                 localStorage.setItem('savedExchangeRate', exchangeRateInput.value);
                 localStorage.setItem('savedApplyFee', applyFeeCheckbox.checked);
                 localStorage.setItem('savedFeeInput', feeInput.value);
                 localStorage.setItem('savedUsdAmount', usdInput.value);
                 localStorage.setItem('savedMxnAmount', mxnInput.value);
 
+                // Perform calculations
                 const calculatedMxn = Math.max(0, (usdVal * rate) - activeFee);
                 const calculatedUsd = rate > 0 ? ((mxnVal + activeFee) / rate) : 0;
 
+                // Update UI results
                 mxnOutput.textContent = '$' + formatCurrency(calculatedMxn, 'MXN');
                 usdOutput.textContent = '$' + formatCurrency(calculatedUsd, 'USD');
             };
 
+            // Event Listeners
             exchangeRateInput.addEventListener('input', calculateAll);
             applyFeeCheckbox.addEventListener('change', calculateAll);
             feeInput.addEventListener('input', calculateAll);
             usdInput.addEventListener('input', calculateAll);
             mxnInput.addEventListener('input', calculateAll);
 
+            // Initial calculation
             calculateAll();
         });
     </script>
