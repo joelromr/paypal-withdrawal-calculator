@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PayPal Withdrawal Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <style>
         :root {
             --paypal-blue: #3bb2ed;
@@ -17,7 +20,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Raleway", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
@@ -26,22 +29,35 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0 2rem;
+            align-items: stretch;
         }
 
         header {
-            text-align: center;
-            margin-top: 2.5rem;
+            grid-column: 1;
+            grid-row: 1 / span 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
         }
 
         h1 {
             color: var(--paypal-blue);
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            margin: 0;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            text-transform: uppercase;
+            letter-spacing: 0.15rem;
         }
 
         .step-section {
+            grid-column: 2;
             background: var(--card-bg);
             border-radius: 12px;
             padding: 2rem;
@@ -139,7 +155,7 @@
             left: 0;
             height: 22px;
             width: 22px;
-            background-color: #000000; /* Dark background */
+            background-color: #000000;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             transition: all 0.2s ease;
@@ -174,12 +190,28 @@
             top: 2px;
             width: 5px;
             height: 11px;
-            border: solid #000000; /* Black checkmark against blue bg */
+            border: solid #000000;
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
         }
 
+        /* Fee Input Smooth Transition */
+        #fee-input-container {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-bottom 0.3s ease-out;
+        }
+
+        #fee-input-container.show-fee {
+            max-height: 100px; /* Arbitrary height large enough for the input */
+            opacity: 1;
+            margin-bottom: 1.5rem; /* Matches .input-group */
+        }
+
         .calculators-grid {
+            grid-column: 2;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
@@ -189,9 +221,8 @@
             border-radius: 12px;
             padding: 2rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-            /* Removed old border-top accent and solid background */
-            position: relative; /* Context for layered children */
-            overflow: hidden; /* Contain blurred background */
+            position: relative; 
+            overflow: hidden; 
             z-index: 1;
         }
 
@@ -202,10 +233,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* Place behind content */
-            filter: blur(12px) opacity(0.15); /* Blur and low visibility */
-            object-fit: cover; /* Cover entire card */
-            pointer-events: none; /* Ignore mouse events */
+            z-index: -1; 
+            filter: blur(12px) opacity(0.15); 
+            object-fit: cover; 
+            pointer-events: none; 
         }
 
         /* Foreground Content Layer */
@@ -234,14 +265,42 @@
         }
 
         .result-value {
-            display: block;
+            display: inline-block; /* Changed to inline-block for transform animation */
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--paypal-blue);
             margin-top: 0.25rem;
+            transition: color 0.2s ease;
         }
 
-        @media (max-width: 600px) {
+        /* Value Update Animation */
+        @keyframes pulse-update {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); color: #ffffff; }
+            100% { transform: scale(1); }
+        }
+
+        .value-updated {
+            animation: pulse-update 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            header {
+                grid-column: 1;
+                grid-row: 1;
+                margin-bottom: 2rem;
+            }
+            h1 {
+                writing-mode: horizontal-tb;
+                transform: none;
+                font-size: 2rem;
+            }
+            .step-section, .calculators-grid {
+                grid-column: 1;
+            }
             .calculators-grid {
                 grid-template-columns: 1fr;
             }
@@ -250,6 +309,10 @@
 </head>
 <body>
     <div class="container">
+        <header>
+            <h1>WITHDRAWAL CALCULATOR</h1>
+        </header>
+
         <section class="step-section text-center">
             <h2 class="step-title">Step 1: Get the Rate</h2>
             <a href="https://www.paypal.com/businesswallet/currencyConverter/USD" target="_blank" rel="noopener noreferrer" class="link-button">
@@ -332,10 +395,6 @@
                 </div>
             </div>
         </div>
-
-        <header>
-            <h1>Withdrawal Calculator</h1>
-        </header>
     </div>
 
     <script>
@@ -375,6 +434,15 @@
                 }).format(amount).replace('$', '') + ' ' + currencyCode;
             };
 
+            const animateValueUpdate = (element, newText) => {
+                if (element.textContent !== newText) {
+                    element.classList.remove('value-updated');
+                    void element.offsetWidth; // Trigger reflow to restart animation
+                    element.textContent = newText;
+                    element.classList.add('value-updated');
+                }
+            };
+
             const calculateAll = () => {
                 const rate = parseFloat(exchangeRateInput.value) || 0;
                 const usdVal = parseFloat(usdInput.value) || 0;
@@ -384,8 +452,12 @@
                 const feeVal = parseFloat(feeInput.value) || 0;
                 const activeFee = applyFee ? feeVal : 0;
 
-                // Handle conditional input visibility
-                feeInputContainer.style.display = applyFee ? 'block' : 'none';
+                // Handle smooth conditional input visibility
+                if (applyFee) {
+                    feeInputContainer.classList.add('show-fee');
+                } else {
+                    feeInputContainer.classList.remove('show-fee');
+                }
 
                 // Save current state
                 localStorage.setItem('savedExchangeRate', exchangeRateInput.value);
@@ -398,9 +470,9 @@
                 const calculatedMxn = Math.max(0, (usdVal * rate) - activeFee);
                 const calculatedUsd = rate > 0 ? ((mxnVal + activeFee) / rate) : 0;
 
-                // Update UI results
-                mxnOutput.textContent = '$' + formatCurrency(calculatedMxn, 'MXN');
-                usdOutput.textContent = '$' + formatCurrency(calculatedUsd, 'USD');
+                // Update UI results with animation
+                animateValueUpdate(mxnOutput, '$' + formatCurrency(calculatedMxn, 'MXN'));
+                animateValueUpdate(usdOutput, '$' + formatCurrency(calculatedUsd, 'USD'));
             };
 
             // Event Listeners
