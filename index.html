@@ -185,7 +185,7 @@
                 <input type="checkbox" id="apply-fee">
                 <label for="apply-fee">Apply flat fee (MXN)</label>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="fee-input-container">
                 <input type="number" id="fee-input" placeholder="e.g. 35.00" step="0.01" min="0">
             </div>
         </section>
@@ -225,6 +225,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const exchangeRateInput = document.getElementById('exchange-rate');
             const applyFeeCheckbox = document.getElementById('apply-fee');
+            const feeInputContainer = document.getElementById('fee-input-container');
             const feeInput = document.getElementById('fee-input');
             const usdInput = document.getElementById('usd-input');
             const mxnInput = document.getElementById('mxn-input');
@@ -264,6 +265,8 @@
                 const applyFee = applyFeeCheckbox.checked;
                 const feeVal = parseFloat(feeInput.value) || 0;
                 const activeFee = applyFee ? feeVal : 0;
+
+                feeInputContainer.style.display = applyFee ? 'block' : 'none';
 
                 localStorage.setItem('savedExchangeRate', exchangeRateInput.value);
                 localStorage.setItem('savedApplyFee', applyFeeCheckbox.checked);
